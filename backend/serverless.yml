@@ -13,6 +13,24 @@ provider:
     STAGE: ${self:provider.stage}
     TABLE_NAME: !Ref TranscriptionsTable
     BUCKET_NAME: !Ref AudioBucket
+  httpApi:
+    authorizers:
+      cognitoJwt:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+        audience:
+          - !Ref UserPoolClient
+
+functions:
+  me:
+    handler: src/infrastructure/lambda/http/me.handler
+    events:
+      - httpApi:
+          path: /me
+          method: get
+          authorizer:
+            name: cognitoJwt
 
 resources:
   Resources:
@@ -83,6 +101,7 @@ resources:
         ExplicitAuthFlows:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
+          - ALLOW_ADMIN_USER_PASSWORD_AUTH
         AccessTokenValidity: 60
         IdTokenValidity: 60
         RefreshTokenValidity: 30
