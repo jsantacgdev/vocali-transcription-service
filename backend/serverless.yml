@@ -37,6 +37,14 @@ provider:
           - !Ref UserPoolClient
 
 functions:
+  createTranscription:
+    handler: src/infrastructure/lambda/http/createTranscription.handler
+    events:
+      - httpApi:
+          path: /transcriptions
+          method: post
+          authorizer:
+            name: cognitoJwt
   me:
     handler: src/infrastructure/lambda/http/me.handler
     events:
