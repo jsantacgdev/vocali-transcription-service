@@ -13,6 +13,20 @@ provider:
     STAGE: ${self:provider.stage}
     TABLE_NAME: !Ref TranscriptionsTable
     BUCKET_NAME: !Ref AudioBucket
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+          Resource: !GetAtt TranscriptionsTable.Arn
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+          Resource: !Sub '${AudioBucket.Arn}/*'
   httpApi:
     authorizers:
       cognitoJwt:
