@@ -57,6 +57,14 @@ functions:
           rules:
             - prefix: audio/
           existing: true
+  listTranscriptions:
+    handler: src/infrastructure/lambda/http/listTranscriptions.handler
+    events:
+      - httpApi:
+          path: /transcriptions
+          method: get
+          authorizer:
+            name: cognitoJwt
   me:
     handler: src/infrastructure/lambda/http/me.handler
     events:

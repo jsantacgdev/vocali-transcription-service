@@ -1,8 +1,9 @@
 import { DynamoTranscriptionRepository } from "./adapters/dynamodb/DynamoTranscriptionRepository";
 import { S3AudioStorage } from "./adapters/s3/S3AudioStorage";
-import { CreateTranscription } from "@application/use-cases/CreateTranscription";
 import { SpeechmaticsProvider } from "./adapters/speechmatics/SpeechmaticsProvider";
+import { CreateTranscription } from "@application/use-cases/CreateTranscription";
 import { ProcessAudioTranscription } from "@application/use-cases/ProcessAudioTranscription";
+import { ListTranscriptions } from "@application/use-cases/ListTranscriptions";
 
 const tableName = process.env.TABLE_NAME!;
 const bucketName = process.env.BUCKET_NAME!;
@@ -21,3 +22,5 @@ export const processAudioTranscription = new ProcessAudioTranscription(
   storage,
   stt,
 );
+
+export const listTranscriptions = new ListTranscriptions(repository);
