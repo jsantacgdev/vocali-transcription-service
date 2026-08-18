@@ -49,4 +49,12 @@ export class S3AudioStorage implements AudioStorage {
     );
     return result.Body!.transformToString();
   }
+
+  async getAudio(key: string): Promise<Buffer> {
+    const result = await client.send(
+      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
+    const bytes = await result.Body!.transformToByteArray();
+    return Buffer.from(bytes);
+  }
 }
