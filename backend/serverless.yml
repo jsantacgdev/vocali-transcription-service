@@ -45,6 +45,34 @@ functions:
           method: post
           authorizer:
             name: cognitoJwt
+  onAudioUploaded:
+    handler: src/infrastructure/lambda/events/onAudioUploaded.handler
+    timeout: 300
+    environment:
+      SPEECHMATICS_API_KEY: ${env:SPEECHMATICS_API_KEY}
+    events:
+      - s3:
+          bucket: !Ref AudioBucket
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: audio/
+          existing: true
+  listTranscriptions:
+    handler: src/infrastructure/lambda/http/listTranscriptions.handler
+    events:
+      - httpApi:
+          path: /transcriptions
+          method: get
+          authorizer:
+            name: cognitoJwt
+  downloadTranscription:
+    handler: src/infrastructure/lambda/http/downloadTranscription.handler
+    events:
+      - httpApi:
+          path: /transcriptions/{id}
+          method: get
+          authorizer:
+            name: cognitoJwt
   me:
     handler: src/infrastructure/lambda/http/me.handler
     events:
@@ -124,6 +152,7 @@ resources:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
           - ALLOW_ADMIN_USER_PASSWORD_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
         AccessTokenValidity: 60
         IdTokenValidity: 60
         RefreshTokenValidity: 30

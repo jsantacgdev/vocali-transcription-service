@@ -27,8 +27,15 @@ export class S3AudioStorage implements AudioStorage {
   async createDownloadUrl(
     key: string,
     expiresInSeconds: number,
+    downloadFileName?: string,
   ): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ResponseContentDisposition: downloadFileName
+        ? `attachment; filename="${encodeURIComponent(downloadFileName)}"`
+        : undefined,
+    });
     return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
   }
 
@@ -48,5 +55,13 @@ export class S3AudioStorage implements AudioStorage {
       new GetObjectCommand({ Bucket: this.bucket, Key: key }),
     );
     return result.Body!.transformToString();
+  }
+
+  async getAudio(key: string): Promise<Buffer> {
+    const result = await client.send(
+      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
+    const bytes = await result.Body!.transformToByteArray();
+    return Buffer.from(bytes);
   }
 }

@@ -2,7 +2,6 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  GetCommand,
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
@@ -60,9 +59,10 @@ export class DynamoTranscriptionRepository implements TranscriptionRepository {
     );
 
     const item = result.Items?.[0];
-    return item
-      ? Transcription.fromPersistence(item as TranscriptionProps)
-      : null;
+    if (!item) return null;
+
+    const { PK, SK, ...props } = item;
+    return Transcription.fromPersistence(props as TranscriptionProps);
   }
 
   async findByUser(
@@ -82,9 +82,10 @@ export class DynamoTranscriptionRepository implements TranscriptionRepository {
     );
 
     return {
-      items: (result.Items ?? []).map((i) =>
-        Transcription.fromPersistence(i as TranscriptionProps),
-      ),
+      items: (result.Items ?? []).map((i) => {
+        const { PK, SK, ...props } = i;
+        return Transcription.fromPersistence(props as TranscriptionProps);
+      }),
       nextCursor: result.LastEvaluatedKey
         ? this.encodeCursor(result.LastEvaluatedKey)
         : null,

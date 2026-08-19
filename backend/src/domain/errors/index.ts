@@ -31,3 +31,9 @@ export class FileTooLargeError extends DomainError {
     super(`File exceeds ${maxBytes} bytes`, "FILE_TOO_LARGE");
   }
 }
+
+export class TranscriptionNotReadyError extends DomainError {
+  constructor(id: string, status: string) {
+    super(`Transcription ${id} is not ready (status: ${status})`, "NOT_READY");
+  }
+}

@@ -95,4 +95,11 @@ export class Transcription {
   toJSON(): TranscriptionProps {
     return { ...this.props };
   }
+
+  get audioKey(): string | null {
+    return this.props.audioKey;
+  }
+  get userId(): string {
+    return this.props.userId;
+  }
 }
