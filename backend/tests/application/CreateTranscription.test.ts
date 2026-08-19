@@ -1,23 +1,9 @@
-import { CreateTranscription } from "../../src/application/use-cases/CreateTranscription";
-import { TranscriptionRepository } from "../../src/domain/ports/TranscriptionRepository";
-import { AudioStorage } from "../../src/domain/ports/AudioStorage";
-import { FileTooLargeError } from "../../src/domain/errors";
-
-const makeRepository = (): jest.Mocked<TranscriptionRepository> => ({
-  save: jest.fn(),
-  findById: jest.fn(),
-  findByUser: jest.fn(),
-});
-
-const makeStorage = (): jest.Mocked<AudioStorage> => ({
-  createUploadUrl: jest.fn().mockResolvedValue("https://s3.example/upload"),
-  createDownloadUrl: jest.fn(),
-  saveText: jest.fn(),
-  getText: jest.fn(),
-});
+import { CreateTranscription } from "@application/use-cases/CreateTranscription";
+import { FileTooLargeError } from "@domain/errors";
+import { makeRepository, makeStorage } from "../helpers/mocks";
 
 describe("CreateTranscription", () => {
-  it("creates a transcription and returns an upload url", async () => {
+  it("Creates a transcription and returns an upload url", async () => {
     const repository = makeRepository();
     const storage = makeStorage();
     const useCase = new CreateTranscription(repository, storage);
@@ -32,7 +18,7 @@ describe("CreateTranscription", () => {
     expect(repository.save).toHaveBeenCalledTimes(1);
   });
 
-  it("rejects files larger than 20MB", async () => {
+  it("Rejects files larger than 20MB", async () => {
     const useCase = new CreateTranscription(makeRepository(), makeStorage());
 
     await expect(
@@ -44,7 +30,7 @@ describe("CreateTranscription", () => {
     ).rejects.toThrow(FileTooLargeError);
   });
 
-  it("does not create an upload url when the file is too large", async () => {
+  it("Does not create an upload url when the file is too large", async () => {
     const storage = makeStorage();
     const useCase = new CreateTranscription(makeRepository(), storage);
 
