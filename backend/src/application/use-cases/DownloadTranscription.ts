@@ -47,11 +47,14 @@ export class DownloadTranscription {
       );
     }
 
+    const fileName = `${input.transcriptionId}.txt`;
+
     const downloadUrl = await this.storage.createDownloadUrl(
       transcription.transcriptKey,
       DOWNLOAD_URL_TTL,
+      fileName,
     );
 
-    return { downloadUrl, fileName: `${input.transcriptionId}.txt` };
+    return { downloadUrl, fileName };
   }
 }

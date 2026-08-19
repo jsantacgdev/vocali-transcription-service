@@ -27,8 +27,15 @@ export class S3AudioStorage implements AudioStorage {
   async createDownloadUrl(
     key: string,
     expiresInSeconds: number,
+    downloadFileName?: string,
   ): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ResponseContentDisposition: downloadFileName
+        ? `attachment; filename="${encodeURIComponent(downloadFileName)}"`
+        : undefined,
+    });
     return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
   }
 
