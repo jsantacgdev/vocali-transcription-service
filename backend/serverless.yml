@@ -13,6 +13,7 @@ provider:
     STAGE: ${self:provider.stage}
     TABLE_NAME: !Ref TranscriptionsTable
     BUCKET_NAME: !Ref AudioBucket
+    SPEECHMATICS_API_KEY: ${env:SPEECHMATICS_API_KEY}
   iam:
     role:
       statements:
@@ -48,8 +49,6 @@ functions:
   onAudioUploaded:
     handler: src/infrastructure/lambda/events/onAudioUploaded.handler
     timeout: 300
-    environment:
-      SPEECHMATICS_API_KEY: ${env:SPEECHMATICS_API_KEY}
     events:
       - s3:
           bucket: !Ref AudioBucket
@@ -71,6 +70,14 @@ functions:
       - httpApi:
           path: /transcriptions/{id}
           method: get
+          authorizer:
+            name: cognitoJwt
+  createRealtimeToken:
+    handler: src/infrastructure/lambda/http/createRealtimeToken.handler
+    events:
+      - httpApi:
+          path: /realtime/token
+          method: post
           authorizer:
             name: cognitoJwt
   me:
