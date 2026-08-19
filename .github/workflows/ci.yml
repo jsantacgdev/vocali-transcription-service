@@ -51,7 +51,12 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - run: npm ci
-
+      
+      - name: Debug OIDC claims
+        run: |
+          echo "repository: ${{ github.repository }}"
+          echo "ref: ${{ github.ref }}"
+          echo "workflow_ref: ${{ github.workflow_ref }}"
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::020641929729:role/vocali-github-deploy
