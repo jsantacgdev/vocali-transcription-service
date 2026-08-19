@@ -5,6 +5,7 @@ import { CreateTranscription } from "@application/use-cases/CreateTranscription"
 import { ProcessAudioTranscription } from "@application/use-cases/ProcessAudioTranscription";
 import { ListTranscriptions } from "@application/use-cases/ListTranscriptions";
 import { DownloadTranscription } from "@application/use-cases/DownloadTranscription";
+import { CreateRealtimeToken } from "@application/use-cases/CreateRealtimeToken";
 
 const tableName = process.env.TABLE_NAME!;
 const bucketName = process.env.BUCKET_NAME!;
@@ -30,3 +31,5 @@ export const downloadTranscription = new DownloadTranscription(
   repository,
   storage,
 );
+
+export const createRealtimeToken = new CreateRealtimeToken(stt);
