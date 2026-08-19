@@ -1,9 +1,10 @@
-import { DynamoTranscriptionRepository } from "./adapters/dynamodb/DynamoTranscriptionRepository";
-import { S3AudioStorage } from "./adapters/s3/S3AudioStorage";
-import { SpeechmaticsProvider } from "./adapters/speechmatics/SpeechmaticsProvider";
+import { DynamoTranscriptionRepository } from "@infrastructure/adapters/dynamodb/DynamoTranscriptionRepository";
+import { S3AudioStorage } from "@infrastructure/adapters/s3/S3AudioStorage";
+import { SpeechmaticsProvider } from "@infrastructure/adapters/speechmatics/SpeechmaticsProvider";
 import { CreateTranscription } from "@application/use-cases/CreateTranscription";
 import { ProcessAudioTranscription } from "@application/use-cases/ProcessAudioTranscription";
 import { ListTranscriptions } from "@application/use-cases/ListTranscriptions";
+import { DownloadTranscription } from "@application/use-cases/DownloadTranscription";
 
 const tableName = process.env.TABLE_NAME!;
 const bucketName = process.env.BUCKET_NAME!;
@@ -24,3 +25,8 @@ export const processAudioTranscription = new ProcessAudioTranscription(
 );
 
 export const listTranscriptions = new ListTranscriptions(repository);
+
+export const downloadTranscription = new DownloadTranscription(
+  repository,
+  storage,
+);

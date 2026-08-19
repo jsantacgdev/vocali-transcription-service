@@ -65,6 +65,14 @@ functions:
           method: get
           authorizer:
             name: cognitoJwt
+  downloadTranscription:
+    handler: src/infrastructure/lambda/http/downloadTranscription.handler
+    events:
+      - httpApi:
+          path: /transcriptions/{id}
+          method: get
+          authorizer:
+            name: cognitoJwt
   me:
     handler: src/infrastructure/lambda/http/me.handler
     events:
