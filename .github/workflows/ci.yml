@@ -57,6 +57,11 @@ jobs:
           echo "repository: ${{ github.repository }}"
           echo "ref: ${{ github.ref }}"
           echo "workflow_ref: ${{ github.workflow_ref }}"
+      - name: Print OIDC subject
+        run: |
+          TOKEN=$(curl -sLS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+          echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq -r '.sub'
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::020641929729:role/vocali-github-deploy
