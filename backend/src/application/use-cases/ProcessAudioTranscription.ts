@@ -42,7 +42,7 @@ export class ProcessAudioTranscription {
       const message = error instanceof Error ? error.message : "Unknown error";
       transcription.markAsFailed(message);
       await this.repository.save(transcription);
-      throw error;
+      console.error(`Transcription ${transcriptionId} failed:`, error);
     }
   }
 }

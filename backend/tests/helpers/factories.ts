@@ -20,3 +20,14 @@ export const makeTranscription = (
     completedAt: "2026-01-01T00:01:00.000Z",
     ...overrides,
   });
+
+export const makePendingTranscription = (
+  overrides: Partial<TranscriptionProps> = {},
+): Transcription =>
+  makeTranscription({
+    status: "PENDING",
+    transcriptKey: null,
+    durationSeconds: null,
+    completedAt: null,
+    ...overrides,
+  });
