@@ -4,13 +4,13 @@
       <div
         class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4"
       >
-        <NuxtLink to="/" class="text-lg font-semibold text-slate-900">
-          Vocali
+        <NuxtLink to="/">
+          <img src="/logo.png" alt="Vocali" class="h-7" />
         </NuxtLink>
         <div class="flex items-center gap-4 text-sm">
           <span class="text-slate-500">{{ currentEmail }}</span>
           <button
-            class="rounded-md px-3 py-1.5 text-slate-700 hover:bg-slate-100"
+            class="rounded-lg px-3 py-1.5 font-medium text-slate-600 transition hover:bg-slate-100"
             @click="logout"
           >
             Cerrar sesión
@@ -19,9 +19,7 @@
       </div>
     </header>
 
-    <main class="mx-auto max-w-4xl px-6 py-8">
-      <NuxtPage />
-    </main>
+    <NuxtPage />
   </div>
 </template>
 
