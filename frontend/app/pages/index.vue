@@ -65,21 +65,19 @@
       </ul>
 
       <div
-        v-if="!loading && (cursors.length > 0 || nextCursor)"
+        v-if="!loading && (canGoBack || canGoForward)"
         class="flex items-center justify-between border-t border-slate-100 px-6 py-3"
       >
         <button
-          :disabled="cursors.length === 0"
+          :disabled="!canGoBack"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
           @click="prevPage"
         >
           Anterior
         </button>
-        <span class="text-xs text-slate-500">
-          Página {{ cursors.length + 1 }}
-        </span>
+        <span class="text-xs text-slate-500">Página {{ pageNumber }}</span>
         <button
-          :disabled="!nextCursor"
+          :disabled="!canGoForward"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
           @click="nextPage"
         >
@@ -93,6 +91,7 @@
 </template>
 
 <script setup lang="ts">
+import { usePagination } from "~/composables/usePagination";
 import type { Transcription } from "~/types";
 
 const { listTranscriptions, getDownloadUrl } = useApi();
@@ -103,8 +102,18 @@ const STALE_MS = 10 * 60 * 1000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 const items = ref<Transcription[]>([]);
-const nextCursor = ref<string | null>(null);
-const cursors = ref<string[]>([]);
+
+const {
+  currentCursor,
+  pageNumber,
+  canGoBack,
+  canGoForward,
+  setNextCursor,
+  goForward,
+  goBack,
+  reset: resetPagination,
+} = usePagination();
+
 const loading = ref(true);
 const downloading = ref<string | null>(null);
 const error = ref("");
@@ -115,7 +124,7 @@ const load = async (cursor?: string) => {
   try {
     const page = await listTranscriptions(cursor);
     items.value = page.items;
-    nextCursor.value = page.nextCursor;
+    setNextCursor(page.nextCursor);
   } catch (e) {
     error.value = e instanceof Error ? e.message : "No se pudo cargar";
   } finally {
@@ -124,19 +133,18 @@ const load = async (cursor?: string) => {
 };
 
 const reload = () => {
-  cursors.value = [];
+  resetPagination();
   load();
 };
 
 const nextPage = () => {
-  if (!nextCursor.value) return;
-  cursors.value.push(nextCursor.value);
-  load(nextCursor.value);
+  goForward();
+  load(currentCursor.value);
 };
 
 const prevPage = () => {
-  cursors.value.pop();
-  load(cursors.value[cursors.value.length - 1]);
+  goBack();
+  load(currentCursor.value);
 };
 
 const download = async (transcriptionId: string) => {
@@ -177,11 +185,9 @@ const hasPending = computed(() =>
 
 const refreshSilently = async () => {
   try {
-    const page = await listTranscriptions(
-      cursors.value[cursors.value.length - 1],
-    );
+    const page = await listTranscriptions(currentCursor.value);
     items.value = page.items;
-    nextCursor.value = page.nextCursor;
+    setNextCursor(page.nextCursor);
   } catch {}
 };
 
