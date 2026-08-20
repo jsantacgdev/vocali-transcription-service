@@ -52,6 +52,19 @@ jobs:
       - run: npm ci
 
       - run: npm run test
+
+      - uses: cypress-io/github-action@v6
+        with:
+          working-directory: frontend
+          start: npm run dev
+          wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
+        env:
+          CYPRESS_TEST_EMAIL: ${{ secrets.CYPRESS_TEST_EMAIL }}
+          CYPRESS_TEST_PASSWORD: ${{ secrets.CYPRESS_TEST_PASSWORD }}
+          NUXT_PUBLIC_API_BASE_URL: ${{ secrets.NUXT_PUBLIC_API_BASE_URL }}
+          NUXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ secrets.NUXT_PUBLIC_COGNITO_USER_POOL_ID }}
+          NUXT_PUBLIC_COGNITO_CLIENT_ID: ${{ secrets.NUXT_PUBLIC_COGNITO_CLIENT_ID }}
   deploy:
     name: Deploy to AWS
     needs: quality
