@@ -29,12 +29,12 @@ provider:
             - s3:GetObject
           Resource: !Sub '${AudioBucket.Arn}/*'
   httpApi:
+    cors: true
     authorizers:
       cognitoJwt:
         type: jwt
         identitySource: $request.header.Authorization
         issuerUrl: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
-        cors: true
         audience:
           - !Ref UserPoolClient
 
