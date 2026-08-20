@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import type { TranscriptionStatus } from "~/types";
 
 const props = defineProps<{ status: TranscriptionStatus }>();
