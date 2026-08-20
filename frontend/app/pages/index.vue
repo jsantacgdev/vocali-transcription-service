@@ -123,8 +123,8 @@ const load = async (cursor?: string) => {
   error.value = "";
   try {
     const page = await listTranscriptions(cursor);
-    items.value = page.items;
-    setNextCursor(page.nextCursor);
+    items.value = page.items ?? [];
+    setNextCursor(page.nextCursor ?? null);
   } catch (e) {
     error.value = e instanceof Error ? e.message : "No se pudo cargar";
   } finally {

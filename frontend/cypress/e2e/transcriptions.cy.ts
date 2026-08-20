@@ -109,4 +109,70 @@ describe("Transcriptions", () => {
     cy.wait("@upload");
     cy.wait("@list");
   });
+
+  it("Requests a signed url when downloading", () => {
+    cy.intercept("GET", "**/transcriptions", {
+      body: { items: [completed], nextCursor: null },
+    }).as("list");
+
+    cy.intercept("GET", "**/transcriptions/t-1", {
+      body: {
+        downloadUrl: "https://s3.example.com/descarga-firmada",
+        fileName: "t-1.txt",
+      },
+    }).as("download");
+
+    cy.intercept("GET", "https://s3.example.com/**", {
+      statusCode: 200,
+      headers: { "content-disposition": 'attachment; filename="t-1.txt"' },
+      body: "Texto de la transcripción",
+    }).as("file");
+
+    cy.visit("/");
+    cy.wait("@list");
+
+    cy.contains("button", "Descargar").click();
+
+    cy.wait("@download").its("response.statusCode").should("eq", 200);
+  });
+
+  it("Walks forward and back through pages", () => {
+    const firstPage = Array.from({ length: 10 }, (_, i) => ({
+      ...completed,
+      transcriptionId: `t-${i + 1}`,
+      fileName: `pagina1-${i + 1}.wav`,
+    }));
+
+    const secondPage = [
+      { ...completed, transcriptionId: "t-11", fileName: "pagina2-11.wav" },
+    ];
+
+    cy.intercept("GET", "**/transcriptions", {
+      body: { items: firstPage, nextCursor: "cursor-pagina-2" },
+    }).as("page1");
+
+    cy.intercept("GET", "**/transcriptions?cursor=*", {
+      body: { items: secondPage, nextCursor: null },
+    }).as("page2");
+
+    cy.visit("/");
+    cy.wait("@page1");
+
+    cy.contains("Página 1").should("be.visible");
+    cy.contains("pagina1-1.wav").should("be.visible");
+    cy.contains("button", "Anterior").should("be.disabled");
+
+    cy.contains("button", "Siguiente").click();
+    cy.wait("@page2");
+
+    cy.contains("Página 2").should("be.visible");
+    cy.contains("pagina2-11.wav").should("be.visible");
+    cy.contains("button", "Siguiente").should("be.disabled");
+
+    cy.contains("button", "Anterior").click();
+    cy.wait("@page1");
+
+    cy.contains("Página 1").should("be.visible");
+    cy.contains("pagina1-1.wav").should("be.visible");
+  });
 });
