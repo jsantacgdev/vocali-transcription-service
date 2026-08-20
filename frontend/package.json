@@ -10,6 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@speechmatics/browser-audio-input": "^2.0.4",
+    "@speechmatics/real-time-client": "^8.5.1",
     "amazon-cognito-identity-js": "^6.3.20",
     "nuxt": "^4.5.2",
     "vue": "^3.5.41",

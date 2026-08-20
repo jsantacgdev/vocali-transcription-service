@@ -66,7 +66,9 @@ export const useAuth = () => {
       if (!user) return resolve(null);
       user.getSession((err: Error | null, session: CognitoUserSession) => {
         if (err || !session.isValid()) return resolve(null);
-        currentEmail.value = user.getUsername();
+        const claims = session.getIdToken().payload;
+        currentEmail.value =
+          (claims.email as string | undefined) ?? user.getUsername();
         resolve(session);
       });
     });

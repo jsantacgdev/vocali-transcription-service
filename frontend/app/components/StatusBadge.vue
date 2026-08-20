@@ -3,7 +3,17 @@
     class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
     :class="styles.wrapper"
   >
-    <span class="size-1.5 rounded-full" :class="styles.dot" />
+    <span class="relative flex size-1.5">
+      <span
+        v-if="status === 'PENDING' || status === 'PROCESSING'"
+        class="absolute inline-flex size-full animate-ping rounded-full opacity-75 [animation-duration:0.7s]"
+        :class="styles.dot"
+      />
+      <span
+        class="relative inline-flex size-1.5 rounded-full"
+        :class="styles.dot"
+      />
+    </span>
     {{ styles.label }}
   </span>
 </template>
@@ -25,7 +35,7 @@ const map: Record<
   PROCESSING: {
     label: "Procesando",
     wrapper: "bg-amber-50 text-amber-700",
-    dot: "bg-amber-500 animate-pulse",
+    dot: "bg-amber-500",
   },
   COMPLETED: {
     label: "Completada",

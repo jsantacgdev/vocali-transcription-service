@@ -97,6 +97,11 @@ import type { Transcription } from "~/types";
 
 const { listTranscriptions, getDownloadUrl } = useApi();
 
+const POLL_MS = 5000;
+const STALE_MS = 10 * 60 * 1000;
+
+let pollTimer: ReturnType<typeof setInterval> | null = null;
+
 const items = ref<Transcription[]>([]);
 const nextCursor = ref<string | null>(null);
 const cursors = ref<string[]>([]);
@@ -162,5 +167,40 @@ const formatDuration = (seconds: number) => {
   return mins > 0 ? `${mins} min ${secs} s` : `${secs} s`;
 };
 
+const hasPending = computed(() =>
+  items.value.some(
+    (i) =>
+      (i.status === "PENDING" || i.status === "PROCESSING") &&
+      Date.now() - new Date(i.createdAt).getTime() < STALE_MS,
+  ),
+);
+
+const refreshSilently = async () => {
+  try {
+    const page = await listTranscriptions(
+      cursors.value[cursors.value.length - 1],
+    );
+    items.value = page.items;
+    nextCursor.value = page.nextCursor;
+  } catch {}
+};
+
+watch(
+  hasPending,
+  (pending) => {
+    if (pending && !pollTimer) {
+      pollTimer = setInterval(refreshSilently, POLL_MS);
+    } else if (!pending && pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  },
+  { immediate: true },
+);
+
 onMounted(reload);
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer);
+});
 </script>
